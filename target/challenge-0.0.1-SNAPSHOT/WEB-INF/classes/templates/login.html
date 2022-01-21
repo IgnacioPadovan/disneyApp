@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/head :: head"></head>
+
+<body id="page-top" data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-offset="77">
+    
+        <nav th:replace="/fragments/navbar :: nav"></nav>
+
+    <header class="masthead" style="background-image:url('/img/intro-bg.jpg');">
+        <div class="intro-body">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 mx-auto">
+                        <h2 class="display-4">Ingresá a Glee</h2>
+                        <form  method="POST" action="/logincheck">
+                           <p th:if="${error != null}" th:text="${error}" style="color:red"></p>
+                           <p th:if="${logout != null}" th:text="${logout}" style="color:green"></p>
+
+                           <label>Email</label>
+                          <input type="email" class="form-control" name="username"/>
+
+                          <label>Clave</label>
+                          <input type="password" class="form-control" name="password"/>
+
+                          <br/><button type="submit" class="btn btn-primary">Ingresar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+<!-- Footer -->
+<footer th:replace="/fragments/footer :: footer"></footer>
+<!-- Bootstrap core JavaScript -->
+ <script th:replace="/fragments/boostjs :: script"></script>
+
+
+</body>
+
+</html>
