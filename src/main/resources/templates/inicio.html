@@ -16,10 +16,20 @@
 
         <div class="container">
             <div class="row text-center" >
+                <p th:if="${error != null}" th:text="${error}" style="color: red; align-items:  center"></p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row text-center" >
                 <div class="col">
-                    <a class="btn btn-primary" href="/personaje/characters" role="button">Personajes</a>    </div>
+                    <a class="btn btn-primary" href="/personaje/characters" role="button">Personajes</a>    
+                </div>
                 <div class="col">
-                    <a class="btn btn-primary" href="#" role="button">Peliculas</a>
+                    <a class="btn btn-primary" href="/pelicula/movies" role="button">Peliculas</a>
+                </div>
+                <div th:if="${session.usuariosession != null}" class="col">
+                    <a class="btn btn-primary" href="/genero/" role="button">Generos</a>    
                 </div>
 
             </div>

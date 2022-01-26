@@ -1,5 +1,6 @@
 package alkemy.challenge.controladores;
 
+import alkemy.challenge.servicios.SendGridEmailService;
 import alkemy.challenge.servicios.UsuarioService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +18,8 @@ public class Authentication {
 
     @Autowired
     private UsuarioService usuarioService;
+    @Autowired
+    private SendGridEmailService sendGridEmailService;
 
     @GetMapping("/")
     public String registro() {
@@ -58,8 +61,11 @@ public class Authentication {
             return "registro.html";
         }
 
-        modelo.put("titulo", "Bienvenidos a la App de Disney");
+        modelo.put("titulo", "Bienvenido a la App de Disney");
         modelo.put("descripcion", "Tu usuario fue registrado con exito");
+        
+        sendGridEmailService.enviarTexto(email, "Bienvenido a la App de Disney", "Tu usuario fue registrado con exito");
+        
         return "exito.html";
     }
 }

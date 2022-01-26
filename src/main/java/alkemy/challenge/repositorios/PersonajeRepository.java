@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PersonajeRepository extends JpaRepository<Personaje, String> {
 
-    @Query("SELECT c FROM Personaje c WHERE c.nombre = :nombre")
+    @Query("SELECT c FROM Personaje c WHERE c.nombre LIKE :nombre")
     public List<Personaje> buscarPorNombre(@Param("nombre") String nombre);
 
     @Query("SELECT c FROM Personaje c WHERE c.edad = :edad")

@@ -17,33 +17,40 @@ import org.springframework.web.multipart.MultipartFile;
 public class PersonajeService {
 
     @Autowired
-    private PeliculaRepository peliculaRepository;
-    @Autowired
     private PersonajeRepository personajeRepository;
+    @Autowired
+    private PeliculaService peliculaService;
 
     @Transactional
     public void agregar(MultipartFile archivo, List<String> idPeliculas, String nombre, String edad, String peso, String historia) throws Error, IOException {
+        try {
+            validar(archivo, nombre, edad, peso, historia);
 
-        validar(archivo, nombre, edad, peso, historia);
+            Personaje personaje = new Personaje();
+            personaje.setImagen(archivo.getBytes());
+            personaje.setEdad(edad);
+            personaje.setHistoria(historia);
+            personaje.setNombre(nombre);
+            personaje.setPeso(peso);
 
-        Personaje personaje = new Personaje();
-        personaje.setImagen(archivo.getBytes());
-        personaje.setEdad(edad);
-        personaje.setHistoria(historia);
-        personaje.setNombre(nombre);
-        personaje.setPeso(peso);
-
-        if (idPeliculas != null) {
             List<Pelicula> peliculas = new ArrayList<>();
-            for (String idPelicula : idPeliculas) {
-                Pelicula pelicula = peliculaRepository.getById(idPelicula);
-                peliculas.add(pelicula);
+
+            if (idPeliculas != null) {
+
+                for (String idPelicula : idPeliculas) {
+                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    peliculas.add(pelicula);
+                }
+
             }
 
             personaje.setPeliculas(peliculas);
-        }
 
-        personajeRepository.save(personaje);
+            personajeRepository.save(personaje);
+            
+        } catch (Error e) {
+            throw new Error("No se pudo cargar el personaje a la base de datos");
+        }
 
     }
 
@@ -55,7 +62,7 @@ public class PersonajeService {
 
             validar(archivo, nombre, edad, peso, historia);
 
-            Personaje personaje = new Personaje();
+            Personaje personaje = respuesta.get();
             personaje.setImagen(archivo.getBytes());
             personaje.setEdad(edad);
             personaje.setHistoria(historia);
@@ -65,7 +72,7 @@ public class PersonajeService {
             if (idPeliculas != null) {
                 List<Pelicula> peliculas = new ArrayList<>();
                 for (String idPelicula : idPeliculas) {
-                    Pelicula pelicula = peliculaRepository.getById(idPelicula);
+                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
                     peliculas.add(pelicula);
                 }
 
@@ -112,29 +119,14 @@ public class PersonajeService {
 
     }
 
-    private List<Pelicula> validarPeliculas(List<Pelicula> peliculas) {
-
-        List<Pelicula> respuestas = null;
-
-        for (Pelicula pelicula : peliculas) {
-            Optional<Pelicula> respuesta = peliculaRepository.findById(pelicula.getId());
-            if (respuesta.isPresent()) {
-                respuestas.add(pelicula);
-            } else {
-                throw new Error("No se encontró la pelicula solicitada");
-            }
-        }
-
-        return respuestas;
-
-    }
-
+    @Transactional(readOnly=true)
     public List<Personaje> listarPersonajes() {
 
         return personajeRepository.findAll();
 
     }
 
+    @Transactional(readOnly=true)
     public Personaje buscarPorId(String id) {
 
         Optional<Personaje> respuesta = personajeRepository.findById(id);
@@ -146,9 +138,10 @@ public class PersonajeService {
 
     }
 
-    public List<Personaje> buscarPorNombre(String nombre) {
+    @Transactional(readOnly=true)
+    public List<Personaje> buscarPorNombre(String name) {
 
-        List<Personaje> respuesta = personajeRepository.buscarPorNombre(nombre);
+        List<Personaje> respuesta = personajeRepository.buscarPorNombre(name);
 
         if (respuesta != null) {
             return respuesta;
@@ -158,6 +151,7 @@ public class PersonajeService {
 
     }
 
+    @Transactional(readOnly=true)
     public List<Personaje> filtrarPorEdad(String edad) {
 
         List<Personaje> respuesta = personajeRepository.filtrarPorEdad(edad);
@@ -170,6 +164,7 @@ public class PersonajeService {
 
     }
 
+    @Transactional(readOnly=true)
     public List<Personaje> filtrarPorPeso(String peso) {
 
         List<Personaje> respuesta = personajeRepository.filtrarPorPeso(peso);
@@ -179,6 +174,16 @@ public class PersonajeService {
         } else {
             throw new Error("No se encontró personaje con ese peso.");
         }
+
+    }
+    
+    @Transactional(readOnly=true)
+    public List<Personaje> filtrarPorPelicula(String idMovie) {
+
+        Pelicula pelicula =  peliculaService.buscarPorId(idMovie);
+
+       return pelicula.getPersonajes();
+
 
     }
 

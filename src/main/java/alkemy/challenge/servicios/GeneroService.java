@@ -2,10 +2,12 @@ package alkemy.challenge.servicios;
 
 import alkemy.challenge.entidades.Genero;
 import alkemy.challenge.entidades.Pelicula;
+import alkemy.challenge.entidades.Personaje;
 import alkemy.challenge.enumeraciones.TituloGenero;
 import alkemy.challenge.repositorios.GeneroRepository;
 import alkemy.challenge.repositorios.PeliculaRepository;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,34 +21,59 @@ public class GeneroService {
     @Autowired
     private GeneroRepository generoRepository;
     @Autowired
-    private PeliculaRepository peliculaRepository;
+    private PeliculaService peliculaService;
 
     @Transactional
-    public void agregar(MultipartFile archivo, List<Pelicula> peliculas, TituloGenero nombre) throws Error, IOException {
+    public void agregar(MultipartFile archivo, List<String> idPeliculas, TituloGenero nombre) throws Error, IOException {
+        try {
+            validar(archivo, nombre);
 
-        validar(archivo, peliculas, nombre);
-        List<Pelicula> respuestas = validarPeliculas(peliculas);
+            Genero genero = new Genero();
+            genero.setImagen(archivo.getBytes());
+            genero.setNombre(nombre);
 
-        Genero genero = new Genero();
-        genero.setImagen(archivo.getBytes());
-        genero.setNombre(nombre);
-        genero.setPeliculas(peliculas);
+            List<Pelicula> peliculas = new ArrayList<>();
 
-        generoRepository.save(genero);
+            if (idPeliculas != null) {
+
+                for (String idPelicula : idPeliculas) {
+                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    peliculas.add(pelicula);
+                }
+
+            }
+
+            genero.setPeliculas(peliculas);
+
+            generoRepository.save(genero);
+        } catch (Error e) {
+            throw new Error("No se pudo cargar el genero ingresado");
+        }
 
     }
 
     @Transactional
-    public void modificar(MultipartFile archivo, List<Pelicula> peliculas, TituloGenero nombre, String id) throws Error, IOException {
+    public void modificar(MultipartFile archivo, List<String> idPeliculas, TituloGenero nombre, String id) throws Error, IOException {
 
         Optional<Genero> respuesta = generoRepository.findById(id);
         if (respuesta.isPresent()) {
-            validar(archivo, peliculas, nombre);
-            List<Pelicula> respuestas = validarPeliculas(peliculas);
+            validar(archivo, nombre);
 
             Genero genero = respuesta.get();
             genero.setImagen(archivo.getBytes());
             genero.setNombre(nombre);
+
+            List<Pelicula> peliculas = new ArrayList<>();
+
+            if (idPeliculas != null) {
+
+                for (String idPelicula : idPeliculas) {
+                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    peliculas.add(pelicula);
+                }
+
+            }
+
             genero.setPeliculas(peliculas);
 
             generoRepository.save(genero);
@@ -69,13 +96,10 @@ public class GeneroService {
 
     }
 
-    private void validar(MultipartFile archivo, List<Pelicula> peliculas, TituloGenero nombre) {
+    private void validar(MultipartFile archivo, TituloGenero nombre) {
 
         if (nombre == null) {
             throw new Error("El genero debe tener un nombre");
-        }
-        if (peliculas == null || peliculas.isEmpty()) {
-            throw new Error("El genero debe vincularse con peliculas");
         }
         if (archivo == null || archivo.isEmpty()) {
             throw new Error("Se debe adjuntar una imagen al genero");
@@ -83,20 +107,20 @@ public class GeneroService {
 
     }
 
-    private List<Pelicula> validarPeliculas(List<Pelicula> peliculas) {
+    public List<Genero> listarGeneros() {
 
-        List<Pelicula> respuestas = null;
+        return generoRepository.findAll();
 
-        for (Pelicula pelicula : peliculas) {
-            Optional<Pelicula> respuesta = peliculaRepository.findById(pelicula.getId());
-            if (respuesta.isPresent()) {
-                respuestas.add(pelicula);
-            } else {
-                throw new Error("No se encontró la pelicula solicitada.");
-            }
+    }
+
+    public Genero buscarPorId(String id) {
+
+        Optional<Genero> respuesta = generoRepository.findById(id);
+        if (respuesta.isPresent()) {
+            return respuesta.get();
+        } else {
+            throw new Error("No se encontró el genero solicitado.");
         }
-
-        return respuestas;
 
     }
 

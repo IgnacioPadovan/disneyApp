@@ -9,24 +9,55 @@
 
     <section class="text-center content-section" style="background-image:url('/img/intro-bg.jpg');">
         <div class="container">
-            <a class="btn btn-primary" th:href="@{/personaje/carga-edicion}" role="button">Agregar Personaje</a>
-            <p th:if="${error != null}" th:text="${error}" style="background-color: red"></p>
+            <a th:if="${session.usuariosession != null}" class="btn btn-primary" th:href="@{/personaje/carga-edicion}" role="button">Agregar Personaje</a>
+            <p th:if="${error != null}" th:text="${error}" style="color: red"></p>
+                        
+            <div class="row">
+                <div class="column-1">
+                    <form th:action="@{/personaje/characters(name=__${name}__)}" method="GET">
+                        <input id="buscarNombre" type="text" name="name">
+                        <button type="submit">Buscar por nombre</button>
+                    </form>
+                </div>
+                <div  class="column-2">
+                    <form th:action="@{/personaje/characters(age=__${name}__)}" method="GET">
+                        <input id="buscarNombre" type="text" name="age">
+                        <button type="submit">Buscar por edad</button>
+                    </form>
+                </div>
+                <div  class="column-3">
+                    <form th:action="@{/personaje/characters(weight=__${name}__)}" method="GET">
+                        <input id="buscarNombre" type="text" name="weight">
+                        <button type="submit">Buscar por peso</button>
+                    </form>
+                </div>
+                <div class="column-4">
+                    <form th:action="@{/personaje/characters(idMovie=__${name}__)}" method="GET">
+                        <select class="form-control" name="idMovie"> 
+                            <option th:each="pelicula : ${peliculas}" th:value="${pelicula.id}" th:text="${pelicula.titulo}"></option>
+                         </select>
+                        <button type="submit">Buscar por pelicula</button>
+                    </form>
+                </div>
+            </div>
             <table class="table table-light table-hover">
                 <thead>
                     <tr class="bg-primary"></tr>
                     <th>Nombre</th>
                     <th>Imagen</th>
-                    <th th:if="${session.usuariosession != null && cliente  != null}" >Acciones</th>
+                    <th th:if="${session.usuariosession != null}" >Acciones</th>
                 </thead>
                 <tbody>
                     <tr th:each="personaje : ${personajes}">
-                        <td th:text="${personaje.nombre}"></td>
+                        <td>
+                            <a th:href="@{/personaje/detalle(id=__${personaje.id}__)}" th:text="${personaje.nombre}"></a>
+                        </td>
                         <td>
                             <img th:src="${'/personaje/imagen/' + personaje.id}" alt="" style="max-height: 60px"></img>
                         </td>
                         <td th:if="${session.usuariosession != null}" class="col">
                             <a th:href="@{/personaje/carga-edicion(id=__${personaje.id}__)}">Editar</a>
-                            <a th:href="@{/personaje/eiminar(id=__${personaje.id}__)}">Eliminar</a>
+                            <a th:href="@{/personaje/eliminar(id=__${personaje.id}__)}">Eliminar</a>
                         </td>
                     </tr>
                 </tbody>

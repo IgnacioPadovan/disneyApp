@@ -5,6 +5,7 @@ import alkemy.challenge.entidades.Personaje;
 import alkemy.challenge.servicios.PeliculaService;
 import alkemy.challenge.servicios.PersonajeService;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +33,39 @@ public class PersonajeController {
     private PeliculaService peliculaService;
 
     @GetMapping("/characters")
-    public String personajes(ModelMap modelo) {
+    public String personajes(ModelMap modelo, @RequestParam(required = false) String idMovie, @RequestParam(required = false) String name, @RequestParam(required = false) String age, @RequestParam(required = false) String weight) {
+
         try {
-            List<Personaje> personajes = personajeService.listarPersonajes();
+
+            List<Personaje> personajes = new ArrayList<>();
+
+            if (name != null && !name.isEmpty()) {
+                personajes = personajeService.buscarPorNombre(name);
+            } else if (age != null && !age.isEmpty()) {
+                personajes = personajeService.filtrarPorEdad(age);
+            } else if (weight != null && !weight.isEmpty()) {
+                personajes = personajeService.filtrarPorPeso(weight);
+            } else if (idMovie != null && !idMovie.isEmpty()) {
+                personajes = personajeService.filtrarPorPelicula(idMovie);
+            } else {
+                personajes = personajeService.listarPersonajes();
+            }
+
+            List<Pelicula> peliculas = peliculaService.listarPeliculas();
+            modelo.put("peliculas", peliculas);
             modelo.put("personajes", personajes);
+
         } catch (Error e) {
             modelo.put("error", e.getMessage());
         }
-        return "personajes.html";
+
+        return "personajes";
 
     }
-
-    @GetMapping("/imagen/{id}")
-    public ResponseEntity<byte[]> imagenPersonaje(@PathVariable String id) {
+    
+    @GetMapping("/imagen{id}")
+    public ResponseEntity<byte[]> imagenPersonaje(@PathVariable String id
+    ) {
         Personaje personaje;
         personaje = personajeService.buscarPorId(id);
         if (personaje.getImagen() == null) {
@@ -60,7 +81,9 @@ public class PersonajeController {
 
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/carga-edicion")
-    public String carga(ModelMap modelo, @RequestParam(required = false) String id) {
+    public String carga(ModelMap modelo,
+            @RequestParam(required = false) String id
+    ) {
         try {
             List<Pelicula> peliculas = peliculaService.listarPeliculas();
             modelo.put("peliculas", peliculas);
@@ -84,9 +107,14 @@ public class PersonajeController {
 
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/carga-edicion")
-    public String carga(ModelMap modelo, HttpSession session, @RequestParam MultipartFile archivo,
-            @RequestParam(required = false) String id, @RequestParam String nombre, @RequestParam String edad, @RequestParam String peso,
-            @RequestParam String historia, @RequestParam(required = false) List<String> idPeliculas) throws Error, IOException {
+    public String carga(ModelMap modelo, HttpSession session,
+            @RequestParam MultipartFile archivo,
+            @RequestParam(required = false) String id,
+            @RequestParam String nombre,
+            @RequestParam String edad,
+            @RequestParam String peso,
+            @RequestParam String historia,
+            @RequestParam(required = false) List<String> idPeliculas) throws Error, IOException {
         try {
             if (id == null || id.isEmpty()) {
                 personajeService.agregar(archivo, idPeliculas, nombre, edad, peso, historia);
@@ -116,88 +144,35 @@ public class PersonajeController {
     }
 
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
-    @PostMapping("/eliminar")
-    public String eliminar(ModelMap modelo, HttpSession session, @RequestParam String id) {
+    @GetMapping("/eliminar")
+    public String eliminar(ModelMap modelo,
+            @RequestParam String id
+    ) {
 
         try {
             personajeService.eliminar(id);
         } catch (Error e) {
             modelo.put("error", e.getMessage());
         }
+        List<Personaje> personajes = personajeService.listarPersonajes();
+        modelo.put("personajes", personajes);
         return "personajes.html";
 
     }
 
     @GetMapping("/detalle")
-    public String detalle(ModelMap modelo, String id) {
-
-        Personaje personaje = personajeService.buscarPorId(id);
-
-        modelo.put("personaje", personaje);
-
-        return "detalle.html";
-
-    }
-
-    @GetMapping("/characters/{nombre}")
-    public String buscarPorNombre(ModelMap modelo, String nombre) {
-
+    public String detalle(ModelMap modelo, String id
+    ) {
         try {
-            List<Personaje> personajes = personajeService.buscarPorNombre(nombre);
-            modelo.put("personajes", personajes);
-        } catch (Error e) {
-            List<Personaje> personajes = personajeService.listarPersonajes();
-            modelo.put("personajes", personajes);
+            Personaje personaje = personajeService.buscarPorId(id);
+
+            modelo.put("personaje", personaje);
+            return "detalle";
+        } catch (Exception e) {
             modelo.put("error", e.getMessage());
+            return "personajes";
         }
 
-        return "personajes.html";
     }
 
-    @GetMapping("/characters/{edad}")
-    public String filtrarPorEdad(ModelMap modelo, String edad) {
-
-        try {
-            List<Personaje> personajes = personajeService.filtrarPorEdad(edad);
-            modelo.put("personajes", personajes);
-        } catch (Error e) {
-            List<Personaje> personajes = personajeService.listarPersonajes();
-            modelo.put("personajes", personajes);
-            modelo.put("error", e.getMessage());
-        }
-
-        return "personajes.html";
-    }
-
-    @GetMapping("/characters/{peso}")
-    public String filtrarPorPeso(ModelMap modelo, String peso) {
-
-        try {
-            List<Personaje> personajes = personajeService.filtrarPorPeso(peso);
-            modelo.put("personajes", personajes);
-        } catch (Error e) {
-            List<Personaje> personajes = personajeService.listarPersonajes();
-            modelo.put("personajes", personajes);
-            modelo.put("error", e.getMessage());
-        }
-
-        return "personajes.html";
-
-    }
-//    
-//    @GetMapping("/characters/{idPelicula}")
-//    public String filtrarPorPelicula(ModelMap modelo, String idPelicula){
-//        
-//         try {
-//            List<Personaje> personajes = peliculaService.filtrarPorPelicula(idPelicula);
-//            modelo.put("personajes", personajes);
-//        } catch (Error e) {
-//            List<Personaje> personajes = personajeService.listarPersonajes();
-//            modelo.put("personajes", personajes);
-//            modelo.put("error", e.getMessage());
-//        }
-//
-//        return "personajes.html";
-//        
-//    }
 }

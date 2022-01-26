@@ -1,11 +1,13 @@
 package alkemy.challenge.servicios;
 
+import alkemy.challenge.entidades.Genero;
 import alkemy.challenge.entidades.Pelicula;
 import alkemy.challenge.entidades.Personaje;
 import alkemy.challenge.repositorios.PeliculaRepository;
 import alkemy.challenge.repositorios.PersonajeRepository;
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,39 +21,68 @@ public class PeliculaService {
     @Autowired
     private PeliculaRepository peliculaRepository;
     @Autowired
-    private PersonajeRepository personajeRepository;
+    private PersonajeService personajeService;
+    @Autowired
+    private GeneroService generoService;
 
     @Transactional
-    public void agregar(MultipartFile archivo, List<Personaje> personajes, String titulo, Date fechaCreacion, String calificacion) throws Error, IOException {
+    public void agregar(MultipartFile archivo, List<String> idPersonajes, String titulo, LocalDate fechaCreacion, String calificacion) throws Error, IOException {
+        try {
 
-        validar(archivo, personajes, titulo, calificacion, fechaCreacion);
-        List<Personaje> respuestas = validarPersonajes(personajes);
+            validar(archivo, titulo, calificacion, fechaCreacion);
 
-        Pelicula pelicula = new Pelicula();
-        pelicula.setImagen(archivo.getBytes());
-        pelicula.setFechaDeCreacion(fechaCreacion);
-        pelicula.setCalificacion(calificacion);
-        pelicula.setPersonajes(personajes);
-        pelicula.setTitulo(titulo);
+            Pelicula pelicula = new Pelicula();
+            pelicula.setImagen(archivo.getBytes());
+            pelicula.setFechaDeCreacion(fechaCreacion);
+            pelicula.setCalificacion(calificacion);
+            pelicula.setTitulo(titulo);
 
-        peliculaRepository.save(pelicula);
+            List<Personaje> personajes = new ArrayList<>();
+
+            if (idPersonajes != null) {
+
+                for (String idPersonaje : idPersonajes) {
+                    Personaje personaje = personajeService.buscarPorId(idPersonaje);
+                    personajes.add(personaje);
+                }
+
+            }
+
+            pelicula.setPersonajes(personajes);
+
+            peliculaRepository.save(pelicula);
+
+        } catch (Error e) {
+            throw new Error("No se pudo cargar la película a la base de datos");
+        }
 
     }
 
     @Transactional
-    public void modificar(MultipartFile archivo, List<Personaje> personajes, String titulo, Date fechaCreacion, String calificacion, String id) throws Error, IOException {
+    public void modificar(MultipartFile archivo, List<String> idPersonajes, String titulo, LocalDate fechaCreacion, String calificacion, String id) throws Error, IOException {
 
         Optional<Pelicula> respuesta = peliculaRepository.findById(id);
         if (respuesta.isPresent()) {
-            validar(archivo, personajes, titulo, calificacion, fechaCreacion);
-            List<Personaje> respuestas = validarPersonajes(personajes);
+            validar(archivo, titulo, calificacion, fechaCreacion);
 
             Pelicula pelicula = respuesta.get();
             pelicula.setImagen(archivo.getBytes());
             pelicula.setFechaDeCreacion(fechaCreacion);
             pelicula.setCalificacion(calificacion);
-            pelicula.setPersonajes(personajes);
             pelicula.setTitulo(titulo);
+
+            List<Personaje> personajes = new ArrayList<>();
+
+            if (idPersonajes != null) {
+
+                for (String idPersonaje : idPersonajes) {
+                    Personaje personaje = personajeService.buscarPorId(idPersonaje);
+                    personajes.add(personaje);
+                }
+
+            }
+
+            pelicula.setPersonajes(personajes);
 
             peliculaRepository.save(pelicula);
 
@@ -73,7 +104,7 @@ public class PeliculaService {
 
     }
 
-    private void validar(MultipartFile archivo, List<Personaje> personajes, String titulo, String calificacion, Date fechaCreacion) {
+    private void validar(MultipartFile archivo, String titulo, String calificacion, LocalDate fechaCreacion) {
 
         if (titulo == null || titulo.isEmpty()) {
             throw new Error("La película debe tener un nombre");
@@ -84,49 +115,13 @@ public class PeliculaService {
         if (fechaCreacion == null) {
             throw new Error("La película debe tener una fecha de creación");
         }
-        if (personajes == null || personajes.isEmpty()) {
-            throw new Error("La película debe vincularse con personajes");
-        }
         if (archivo == null || archivo.isEmpty()) {
             throw new Error("Se debe adjuntar una imagen a la película");
         }
 
     }
 
-    private List<Personaje> validarPersonajes(List<Personaje> personajes) {
-
-        List<Personaje> respuestas = null;
-
-        for (Personaje personaje : personajes) {
-            Optional<Personaje> respuesta = personajeRepository.findById(personaje.getId());
-            if (respuesta.isPresent()) {
-                respuestas.add(personaje);
-            } else {
-                throw new Error("No se encontró el personaje solicitado.");
-            }
-        }
-
-        return respuestas;
-
-    }
-
-//    public List<Personaje> filtrarPorPelicula(String idPelicula) {
-//
-//        List<String> respuesta = peliculaRepository.personajesPorPelicula(idPelicula);
-//        List<Personaje> personajes = null;
-//
-//        for (String id : respuesta) {
-//            Optional<Personaje> op = personajeRepository.findById(id);
-//            if (op.isPresent()) {
-//                personajes.add(op.get());
-//                return personajes;
-//            } else {
-//                throw new Error("No se encontraron personajes para esa pelicula.");
-//            }
-//        }
-//        return null;
-//    }
-
+    @Transactional(readOnly = true)
     public List<Pelicula> listarPeliculas() {
 
         List<Pelicula> respuesta = peliculaRepository.findAll();
@@ -135,6 +130,53 @@ public class PeliculaService {
             return respuesta;
         } else {
             throw new Error("No se encontraron peliculas para presentar");
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public Pelicula buscarPorId(String id) {
+
+        Optional<Pelicula> respuesta = peliculaRepository.findById(id);
+
+        if (respuesta.isPresent()) {
+            return respuesta.get();
+        } else {
+            throw new Error("No se encontro una pelicula con esas caracteristicas");
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public List<Pelicula> buscarPorNombre(String nombre) {
+
+        List<Pelicula> respuesta = peliculaRepository.buscarPorNombre(nombre);
+
+        if (respuesta != null) {
+            return respuesta;
+        } else {
+            throw new Error("No se encontró pelicula con ese nombre.");
+        }
+
+    }
+
+    @Transactional(readOnly = true)
+    public List<Pelicula> filtrarPorGenero(String idGenero) {
+
+        Genero genero = generoService.buscarPorId(idGenero);
+
+        return genero.getPeliculas();
+
+    }
+
+    public List<Pelicula> ordenar(String order) {
+
+        if (order.equalsIgnoreCase("ASC")) {
+            return peliculaRepository.ordenAscendente();
+        } else if (order.equalsIgnoreCase("DESC")) {
+            return peliculaRepository.ordenDescendente();
+        } else {
+            throw new Error("No se pueden ordenar las peliculas");
         }
 
     }

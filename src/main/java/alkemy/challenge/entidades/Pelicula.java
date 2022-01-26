@@ -1,13 +1,11 @@
 package alkemy.challenge.entidades;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Lob;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,8 +26,8 @@ public class Pelicula {
     private String id;
     private String titulo;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date fechaDeCreacion;
+    @Basic
+    private LocalDate fechaDeCreacion;
 
     private String calificacion;
 
