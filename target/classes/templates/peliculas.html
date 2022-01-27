@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/head :: head"></head>
+
+<body id="page-top" data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-offset="77">
+    
+        <nav th:replace="/fragments/navbar :: nav"></nav>
+
+    <section class="text-center content-section" style="background-image:url('/img/intro-bg.jpg');">
+        <div class="container">
+            <a th:if="${session.usuariosession != null}" class="btn btn-primary" th:href="@{/pelicula/carga-edicion}" role="button">Agregar Pelicula</a>
+            <p th:if="${error != null}" th:text="${error}" style="background-color: red"></p>
+            
+            <div class="row">
+                <div class="column-1">
+                    <form th:action="@{/pelicula/movies(name=__${name}__)}" method="GET">
+                        <input id="buscarNombre" type="text" name="name">
+                        <button type="submit">Buscar por titulo</button>
+                    </form>
+                </div>
+                <div  class="column-2">
+                    <form th:action="@{/pelicula/movies(age=__${name}__)}" method="GET">
+                        <input id="buscarNombre" type="text" name="age">
+                        <button type="submit">Ordenar</button>
+                    </form>
+                </div>
+                <div class="column-4">
+                    <form th:action="@{/pelicula/movies(genre=__${idGenero}__)}" method="GET">
+                        <select class="form-control" name="idGenero"> 
+                            <option th:each="genero : ${generos}" th:value="${genero.id}" th:text="${genero.nombre}"></option>
+                         </select>
+                        <button type="submit">Buscar por Genero</button>
+                    </form>
+                </div>
+            </div>
+            
+            <table class="table table-light table-hover">
+                <thead>
+                    <tr class="bg-primary"></tr>
+                    <th>Titulo</th>
+                    <th>Imagen</th>
+                    <th>Fecha de Creación</th>
+                    <th th:if="${session.usuariosession != null}" >Acciones</th>
+                </thead>
+                <tbody>
+                    <tr th:each="pelicula : ${peliculas}">
+                        <td>
+                            <a th:href="@{/pelicula/detalle(id=__${pelicula.id}__)}" th:text="${pelicula.titulo}"></a>
+                        </td>
+                        <td>
+                            <img th:src="${'/pelicula/imagen/' + pelicula.id}" alt="" style="max-height: 60px"></img>
+                        </td>
+                        <td th:text="${#temporals.format(pelicula.fechaDeCreacion, 'dd-MM-yyyy')}"></td>
+                        <td th:if="${session.usuariosession != null}" class="col">
+                            <a th:href="@{/pelicula/carga-edicion(id=__${pelicula.id}__)}">Editar</a>
+                            <a th:href="@{/pelicula/eliminar(id=__${pelicula.id}__)}">Eliminar</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+<!-- Footer -->
+<footer th:replace="/fragments/footer :: footer"></footer>
+<!-- Bootstrap core JavaScript -->
+ <script th:replace="/fragments/boostjs :: script"></script>
+
+
+</body>
+
+</html>

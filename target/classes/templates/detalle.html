@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/head :: head"></head>
+
+<body id="page-top" data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-offset="77">
+    
+        <nav th:replace="/fragments/navbar :: nav"></nav>
+
+        <div class="list-group, row text-center" th:if="${personaje != null}">
+            <li th:text="${personaje.nombre}" class="list-group-item"></li>
+            <li th:text="${personaje.edad}"class="list-group-item"></li>
+            <li th:text="${personaje.peso}"class="list-group-item"></li>
+            <li th:text="${personaje.historia}"class="list-group-item"></li>
+            <li class="list-group-item">
+                <img th:src="${'/personaje/imagen/' + personaje.id}" alt="" style="max-height: 60px"></img>
+            </li>
+            <li class="list-group-item">
+                
+                <ul class="list-group" th:each="pelicula : ${personaje.peliculas}">
+                    <li th:text="${pelicula.titulo}"class="list-group-item"></li>
+                </ul>
+                
+            </li>
+        </div>
+        
+        <div class="list-group, row text-center" th:if="${pelicula != null}">
+            <label>Titulo</label>
+            <li th:text="${pelicula.titulo}" class="list-group-item"></li>
+            <label>Fecha de Creación</label>
+            <li th:text="${#temporals.format(pelicula.fechaDeCreacion, 'dd-MM-yyyy')}" class="list-group-item"></li>
+            <label>Calificación</label>
+            <li th:text="${pelicula.calificacion}"class="list-group-item"></li>
+            <label>Imagen</label>
+            <li class="list-group-item">
+                <img th:src="${'/pelicula/imagen/' + pelicula.id}" alt="" style="max-height: 60px"></img>
+            </li>
+            <label>Personajes relacionados</label>
+            <li class="list-group-item">
+                
+                <ul class="list-group" th:each="personaje : ${pelicula.personajes}">
+                    <li th:text="${personajes.nombre}"class="list-group-item"></li>
+                </ul>
+                
+            </li>
+        </div>
+        
+        <div class="list-group, row text-center" th:if="${genero != null}">
+            <label>Nombre</label>
+            <li th:text="${genero.nombre}" class="list-group-item"></li>
+            <label>Imagen</label>
+            <li class="list-group-item">
+                <img th:src="${'/genero/imagen/' + genero.id}" alt="" style="max-height: 60px"></img>
+            </li>
+            <label>Peliculas relacionadas</label>
+            <li class="list-group-item">
+                
+                <ul class="list-group" th:each="pelicula : ${genero.peliculas}">
+                    <li th:text="${pelicula.titulo}"class="list-group-item"></li>
+                </ul>
+                
+            </li>
+        </div>
+    
+<!-- Footer -->
+<footer th:replace="/fragments/footer :: footer"></footer>
+<!-- Bootstrap core JavaScript -->
+ <script th:replace="/fragments/boostjs :: script"></script>
+
+
+</body>
+
+</html>

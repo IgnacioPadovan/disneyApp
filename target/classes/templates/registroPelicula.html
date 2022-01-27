@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="/fragments/head :: head"></head>
+
+<body id="page-top" data-bs-spy="scroll" data-bs-target="#mainNav" data-bs-offset="77">
+    
+       <nav th:replace="/fragments/navbar :: nav"></nav>
+        
+    <section class="text-center content-section">
+        <div class="container">
+            <p th:if="${error != null}" th:text="${error}" style="background-color: red"></p>
+            <form enctype="multipart/form-data"action="/pelicula/carga-edicion" method="POST">
+
+              <input type="hidden" name="id" th:value=${pelicula.id}>
+                
+              <label>Titulo</label>
+              <input type="text" class="form-control" name="titulo" th:value=${pelicula.titulo}>
+              
+              <label>Fecha de Creación</label>
+              <input type="date" class="form-control" name="fechaDeCreacion" th:value=${pelicula.fechaDeCreacion}>
+              
+               <label>Calificación</label>
+              <input type="number" class="form-control" name="calificacion" th:value=${pelicula.calificacion}>
+              
+               <label>Imagen de la Pelicula</label>
+              <input type="file" class="form-control" name="archivo" th:value=${pelicula.imagen}>
+
+                <ul>
+                    <li th:each="personaje : ${personajes}">
+                        <input type="checkbox" name="idPersonaje" th:value="${personaje.id}"/>
+                        <label th:text="${personaje.nombre}"></label>
+                    </li>
+                </ul>
+                  
+              <br/><button th:if="${pelicula.id == null}" type="submit" class="btn btn-primary">Cargar Personaje</button>
+              <br/><button th:if="${pelicula.id != null}"type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </section>
+    
+<!-- Footer -->
+<footer th:replace="/fragments/footer :: footer"></footer>
+<!-- Bootstrap core JavaScript -->
+ <script th:replace="/fragments/boostjs :: script"></script>
+
+
+</body>
+
+</html>
