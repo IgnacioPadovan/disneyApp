@@ -31,8 +31,6 @@ public class GeneroController {
     private GeneroService generoService;
     @Autowired
     private PeliculaService peliculaService;
-    @Autowired
-    private PeliculaController peliculaController;
 
     @GetMapping("/")
     public String generos(ModelMap modelo) {
@@ -143,66 +141,4 @@ public class GeneroController {
         }
 
     }
-//
-//    @GetMapping("/characters/{nombre}")
-//    public String buscarPorNombre(ModelMap modelo, String nombre) {
-//
-//        try {
-//            List<Personaje> personajes = personajeService.buscarPorNombre(nombre);
-//            modelo.put("personajes", personajes);
-//        } catch (Error e) {
-//            List<Personaje> personajes = personajeService.listarPersonajes();
-//            modelo.put("personajes", personajes);
-//            modelo.put("error", e.getMessage());
-//        }
-//
-//        return "personajes.html";
-//    }
-//
-//    @GetMapping("/characters/{edad}")
-//    public String filtrarPorEdad(ModelMap modelo, String edad) {
-//
-//        try {
-//            List<Personaje> personajes = personajeService.filtrarPorEdad(edad);
-//            modelo.put("personajes", personajes);
-//        } catch (Error e) {
-//            List<Personaje> personajes = personajeService.listarPersonajes();
-//            modelo.put("personajes", personajes);
-//            modelo.put("error", e.getMessage());
-//        }
-//
-//        return "personajes.html";
-//    }
-//
-//    @GetMapping("/characters/{peso}")
-//    public String filtrarPorPeso(ModelMap modelo, String peso) {
-//
-//        try {
-//            List<Personaje> personajes = personajeService.filtrarPorPeso(peso);
-//            modelo.put("personajes", personajes);
-//        } catch (Error e) {
-//            List<Personaje> personajes = personajeService.listarPersonajes();
-//            modelo.put("personajes", personajes);
-//            modelo.put("error", e.getMessage());
-//        }
-//
-//        return "personajes.html";
-//
-//    }
-//    
-//    @GetMapping("/characters/{idPelicula}")
-//    public String filtrarPorPelicula(ModelMap modelo, String idPelicula){
-//        
-//         try {
-//            List<Personaje> personajes = peliculaService.filtrarPorPelicula(idPelicula);
-//            modelo.put("personajes", personajes);
-//        } catch (Error e) {
-//            List<Personaje> personajes = personajeService.listarPersonajes();
-//            modelo.put("personajes", personajes);
-//            modelo.put("error", e.getMessage());
-//        }
-//
-//        return "personajes.html";
-//        
-//    }
 }

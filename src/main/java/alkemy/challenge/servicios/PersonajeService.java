@@ -19,7 +19,7 @@ public class PersonajeService {
     @Autowired
     private PersonajeRepository personajeRepository;
     @Autowired
-    private PeliculaService peliculaService;
+    private PeliculaRepository peliculaRepository;
 
     @Transactional
     public void agregar(MultipartFile archivo, List<String> idPeliculas, String nombre, String edad, String peso, String historia) throws Error, IOException {
@@ -38,7 +38,7 @@ public class PersonajeService {
             if (idPeliculas != null) {
 
                 for (String idPelicula : idPeliculas) {
-                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    Pelicula pelicula = peliculaRepository.getById(idPelicula);
                     peliculas.add(pelicula);
                 }
 
@@ -72,7 +72,7 @@ public class PersonajeService {
             if (idPeliculas != null) {
                 List<Pelicula> peliculas = new ArrayList<>();
                 for (String idPelicula : idPeliculas) {
-                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    Pelicula pelicula = peliculaRepository.getById(idPelicula);
                     peliculas.add(pelicula);
                 }
 
@@ -180,9 +180,13 @@ public class PersonajeService {
     @Transactional(readOnly=true)
     public List<Personaje> filtrarPorPelicula(String idMovie) {
 
-        Pelicula pelicula =  peliculaService.buscarPorId(idMovie);
+        Optional<Pelicula> respuesta =  peliculaRepository.findById(idMovie);
 
-       return pelicula.getPersonajes();
+        if (respuesta.isPresent()) {
+            return respuesta.get().getPersonajes();
+        } else {
+             throw new Error("No se encontraron personajes para la pelicula seleccionada.");
+        }
 
 
     }

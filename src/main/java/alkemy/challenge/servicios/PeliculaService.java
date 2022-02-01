@@ -3,6 +3,7 @@ package alkemy.challenge.servicios;
 import alkemy.challenge.entidades.Genero;
 import alkemy.challenge.entidades.Pelicula;
 import alkemy.challenge.entidades.Personaje;
+import alkemy.challenge.repositorios.GeneroRepository;
 import alkemy.challenge.repositorios.PeliculaRepository;
 import alkemy.challenge.repositorios.PersonajeRepository;
 import java.io.IOException;
@@ -21,9 +22,9 @@ public class PeliculaService {
     @Autowired
     private PeliculaRepository peliculaRepository;
     @Autowired
-    private PersonajeService personajeService;
+    private PersonajeRepository personajeRepository;
     @Autowired
-    private GeneroService generoService;
+    private GeneroRepository generoRepository;
 
     @Transactional
     public void agregar(MultipartFile archivo, List<String> idPersonajes, String titulo, LocalDate fechaCreacion, String calificacion) throws Error, IOException {
@@ -42,7 +43,7 @@ public class PeliculaService {
             if (idPersonajes != null) {
 
                 for (String idPersonaje : idPersonajes) {
-                    Personaje personaje = personajeService.buscarPorId(idPersonaje);
+                    Personaje personaje = personajeRepository.getById(idPersonaje);
                     personajes.add(personaje);
                 }
 
@@ -76,7 +77,7 @@ public class PeliculaService {
             if (idPersonajes != null) {
 
                 for (String idPersonaje : idPersonajes) {
-                    Personaje personaje = personajeService.buscarPorId(idPersonaje);
+                    Personaje personaje = personajeRepository.getById(idPersonaje);
                     personajes.add(personaje);
                 }
 
@@ -163,9 +164,12 @@ public class PeliculaService {
     @Transactional(readOnly = true)
     public List<Pelicula> filtrarPorGenero(String idGenero) {
 
-        Genero genero = generoService.buscarPorId(idGenero);
-
-        return genero.getPeliculas();
+        Optional<Genero> genero = generoRepository.findById(idGenero);
+        if (genero.isPresent()) {
+            return genero.get().getPeliculas();
+        } else{
+            throw new Error("No se pueden cargar las peliculas para este genero");
+        }
 
     }
 

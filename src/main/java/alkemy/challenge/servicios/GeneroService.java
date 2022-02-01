@@ -2,7 +2,6 @@ package alkemy.challenge.servicios;
 
 import alkemy.challenge.entidades.Genero;
 import alkemy.challenge.entidades.Pelicula;
-import alkemy.challenge.entidades.Personaje;
 import alkemy.challenge.enumeraciones.TituloGenero;
 import alkemy.challenge.repositorios.GeneroRepository;
 import alkemy.challenge.repositorios.PeliculaRepository;
@@ -21,7 +20,7 @@ public class GeneroService {
     @Autowired
     private GeneroRepository generoRepository;
     @Autowired
-    private PeliculaService peliculaService;
+    private PeliculaRepository peliculaRepository;
 
     @Transactional
     public void agregar(MultipartFile archivo, List<String> idPeliculas, TituloGenero nombre) throws Error, IOException {
@@ -37,7 +36,7 @@ public class GeneroService {
             if (idPeliculas != null) {
 
                 for (String idPelicula : idPeliculas) {
-                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    Pelicula pelicula = peliculaRepository.getById(idPelicula);
                     peliculas.add(pelicula);
                 }
 
@@ -68,7 +67,7 @@ public class GeneroService {
             if (idPeliculas != null) {
 
                 for (String idPelicula : idPeliculas) {
-                    Pelicula pelicula = peliculaService.buscarPorId(idPelicula);
+                    Pelicula pelicula = peliculaRepository.getById(idPelicula);
                     peliculas.add(pelicula);
                 }
 
